@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ReversiApp.DAL;
@@ -9,6 +10,7 @@ using ReversiApp.Models;
 
 namespace ReversiApp.Controllers
 {
+    [Authorize]
     public class SpelerController : Controller
     {
         private readonly SpelerContext _context;
@@ -44,7 +46,7 @@ namespace ReversiApp.Controllers
         {
             if (ModelState.IsValid)
             {
-
+                
                 _context.Add(_speler);
                 _context.SaveChanges();
                 return RedirectToAction(nameof(Index));
@@ -52,6 +54,8 @@ namespace ReversiApp.Controllers
 
             return View(_speler);
         }
+
+
 
         // GET: Speler/Edit/5
         public ActionResult Edit(int id)

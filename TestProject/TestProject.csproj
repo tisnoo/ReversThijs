@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\API\API.csproj" />
+    <ProjectReference Include="..\ReversiApp\ReversiApp.csproj" />
   </ItemGroup>
 
 </Project>

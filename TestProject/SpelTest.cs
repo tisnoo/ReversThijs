@@ -1,6 +1,6 @@
-﻿using API;
+﻿
 using NUnit.Framework;
-using ScrabbleApp.Models;
+using ReversiApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;

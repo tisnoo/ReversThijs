@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ReversiApp.DAL;
+using ReversiApp.Hubs;
 
 namespace ReversiApp
 {
@@ -25,8 +26,13 @@ namespace ReversiApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
             services.AddControllersWithViews();
+            services.AddMvc();
+            services.AddSignalR();
+            services.AddRazorPages();
             services.AddDbContext<SpelerContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ProductDatabase")));
+            services.AddDbContext<SpelerContext>(options => options.UseSqlServer(Configuration.GetConnectionString("IdentityContextConnection")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,16 +50,17 @@ namespace ReversiApp
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
+                
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Speler}/{action=Index}/{id?}");
+                    pattern: "{controller=Spel}/{action=Index}/{id?}");
+                endpoints.MapHub<ReversiHub>("/reversiHub");
+                endpoints.MapRazorPages();
             });
         }
     }

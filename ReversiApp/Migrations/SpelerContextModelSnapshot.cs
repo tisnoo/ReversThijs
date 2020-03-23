@@ -18,6 +18,30 @@ namespace ReversiApp.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("ReversiApp.Models.Spel", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("AandeBeurt")
+                        .HasColumnType("int");
+
+                    b.Property<string>("BordJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Omschrijving")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Spellen");
+                });
+
             modelBuilder.Entity("ReversiApp.Models.Speler", b =>
                 {
                     b.Property<int>("Id")
@@ -37,9 +61,23 @@ namespace ReversiApp.Migrations
                     b.Property<string>("Wachtwoord")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("spelId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("spelId");
+
                     b.ToTable("Speler");
+                });
+
+            modelBuilder.Entity("ReversiApp.Models.Speler", b =>
+                {
+                    b.HasOne("ReversiApp.Models.Spel", "spel")
+                        .WithMany("Spelers")
+                        .HasForeignKey("spelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

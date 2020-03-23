@@ -9,8 +9,8 @@ using ReversiApp.DAL;
 namespace ReversiApp.Migrations
 {
     [DbContext(typeof(SpelerContext))]
-    [Migration("20200319115411_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20200322153743_dbInit")]
+    partial class dbInit
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -19,6 +19,30 @@ namespace ReversiApp.Migrations
                 .HasAnnotation("ProductVersion", "3.1.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("ReversiApp.Models.Spel", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("AandeBeurt")
+                        .HasColumnType("int");
+
+                    b.Property<string>("BordJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Omschrijving")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Spellen");
+                });
 
             modelBuilder.Entity("ReversiApp.Models.Speler", b =>
                 {
@@ -39,9 +63,23 @@ namespace ReversiApp.Migrations
                     b.Property<string>("Wachtwoord")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("spelId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("spelId");
+
                     b.ToTable("Speler");
+                });
+
+            modelBuilder.Entity("ReversiApp.Models.Speler", b =>
+                {
+                    b.HasOne("ReversiApp.Models.Spel", "spel")
+                        .WithMany("Spelers")
+                        .HasForeignKey("spelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

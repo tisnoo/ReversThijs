@@ -12,5 +12,6 @@ namespace ReversiApp.DAL
         public SpelerContext(DbContextOptions<SpelerContext> options) : base(options) { }
 
         public DbSet<Speler> Speler { get; set; }
+        public DbSet<Spel> Spellen { get; set; }
     }
 }

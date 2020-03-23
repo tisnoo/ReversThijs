@@ -30,11 +30,17 @@
             <div class="form-group">
                 <label asp-for="Kleur" class="control-label"></label>
                 <select asp-for="Kleur" class="form-control">
-                    <option value="0" selected>Zwart</option>
-                    <option value="1" >Wit</option>
-                    <option value="2" >Geen</option>
+
+                    <option value="1">Wit</option>
+                    <option value="2">Zwart</option>
                 </select>
                 <span asp-validation-for="Kleur" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="spelId" class="control-label"></label>
+                <input asp-for="spelId" class="form-control" />
+                <span asp-validation-for="spelId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

@@ -1,0 +1,194 @@
+.fade-in {
+  animation: fadeIn ease 1.5s;
+  -webkit-animation: fadeIn ease 1.5s;
+  -moz-animation: fadeIn ease 1.5s;
+  -o-animation: fadeIn ease 1.5s;
+  -ms-animation: fadeIn ease 1.5s; }
+
+@keyframes color {
+  0% {
+    background-color: lightgreen; }
+  50% {
+    background-color: green; }
+  100% {
+    background-color: lightgreen; } }
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg); }
+  100% {
+    opacity: 1;
+    transform: rotate(360deg); } }
+
+@-moz-keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg); }
+  100% {
+    opacity: 1;
+    transform: rotate(360deg); } }
+
+@-webkit-keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg); }
+  100% {
+    opacity: 1;
+    transform: rotate(360deg); } }
+
+@-o-keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg); }
+  100% {
+    opacity: 1;
+    transform: rotate(360deg); } }
+
+@-ms-keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg); }
+  100% {
+    opacity: 1;
+    transform: rotate(360deg); } }
+
+@media screen and (max-width: 600px) {
+  .title {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    color: darkgreen;
+    font-size: xx-large; }
+  .board {
+    width: 360px;
+    height: 360px;
+    margin: auto;
+    border: 20px solid darkgreen; }
+  .piece {
+    width: 40px;
+    height: 40px;
+    float: left;
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+    align-content: center; }
+  .piece--white {
+    background-color: green; }
+  .piece--black {
+    background-color: lightgreen; }
+  .piece--selected {
+    background-color: green;
+    animation-name: color;
+    animation-duration: 2s;
+    animation-iteration-count: infinite; }
+  .is-flipped {
+    transform: rotateY(180deg); }
+  .score {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center; }
+  .margin {
+    margin-right: 20px;
+    margin-left: 20px;
+    margin-bottom: 20px; }
+  .fiche-container {
+    width: 100%;
+    height: 100%;
+    transition: transform 1s;
+    transform-style: preserve-3d;
+    position: relative; }
+  .fiche {
+    height: 36.36364px;
+    width: 36.36364px;
+    border-radius: 50%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden; }
+  .front {
+    position: absolute;
+    left: 2px;
+    top: 2px; }
+  .back {
+    transform: rotateY(180deg);
+    position: absolute;
+    left: 2px;
+    top: 2px; }
+  .fiche--playerOne {
+    background-color: white;
+    background-image: linear-gradient(90deg, rgba(200, 0, 0, 0.5) 50%, transparent 50%), linear-gradient(rgba(200, 0, 0, 0.5) 50%, transparent 50%);
+    background-size: 20px 20px;
+    box-shadow: 0px 1px 0px #555, 0px 2px 0px #555, 0px 3px 0px #555; }
+  .fiche--playerTwo {
+    background: linear-gradient(135deg, #ECEDDC 25%, transparent 25%) -50px 0, linear-gradient(225deg, #ECEDDC 25%, transparent 25%) -50px 0, linear-gradient(315deg, #ECEDDC 25%, transparent 25%), linear-gradient(45deg, #ECEDDC 25%, transparent 25%);
+    background-size: 30px 30px;
+    background-color: #EC173A;
+    box-shadow: 0px 1px 0px #555, 0px 2px 0px #555, 0px 3px 0px #555; } }
+
+@media screen and (min-width: 601px) {
+  .title {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    color: darkgreen;
+    font-size: xx-large; }
+  .board {
+    width: 720px;
+    height: 720px;
+    margin: auto;
+    border: 40px solid darkgreen; }
+  .piece {
+    width: 80px;
+    height: 80px;
+    float: left;
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+    align-content: center; }
+  .piece--white {
+    background-color: green; }
+  .piece--black {
+    background-color: lightgreen; }
+  .piece--selected {
+    background-color: green;
+    animation-name: color;
+    animation-duration: 2s;
+    animation-iteration-count: infinite; }
+  .is-flipped {
+    transform: rotateY(180deg); }
+  .score {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center; }
+  .margin {
+    margin-right: 20px;
+    margin-left: 20px;
+    margin-bottom: 20px; }
+  .fiche-container {
+    width: 100%;
+    height: 100%;
+    transition: transform 1s;
+    transform-style: preserve-3d;
+    position: relative; }
+  .fiche {
+    height: 72.72727px;
+    width: 72.72727px;
+    border-radius: 50%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden; }
+  .front {
+    position: absolute;
+    left: 4px;
+    top: 4px; }
+  .back {
+    transform: rotateY(180deg);
+    position: absolute;
+    left: 4px;
+    top: 4px; }
+  .fiche--playerOne {
+    background-color: white;
+    background-image: linear-gradient(90deg, rgba(200, 0, 0, 0.5) 50%, transparent 50%), linear-gradient(rgba(200, 0, 0, 0.5) 50%, transparent 50%);
+    background-size: 20px 20px;
+    box-shadow: 0px 1px 0px #555, 0px 2px 0px #555, 0px 3px 0px #555; }
+  .fiche--playerTwo {
+    background: linear-gradient(135deg, #ECEDDC 25%, transparent 25%) -50px 0, linear-gradient(225deg, #ECEDDC 25%, transparent 25%) -50px 0, linear-gradient(315deg, #ECEDDC 25%, transparent 25%), linear-gradient(45deg, #ECEDDC 25%, transparent 25%);
+    background-size: 30px 30px;
+    background-color: #EC173A;
+    box-shadow: 0px 1px 0px #555, 0px 2px 0px #555, 0px 3px 0px #555; } }
