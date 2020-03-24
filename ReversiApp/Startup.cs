@@ -41,9 +41,10 @@ namespace ReversiApp
                    options.UseSqlServer(
                        Configuration.GetConnectionString("IdentityContextConnection")));
 
-            services.AddDefaultIdentity<Users>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<Users>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<IdentityContext>();
-           }
+
+        }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
