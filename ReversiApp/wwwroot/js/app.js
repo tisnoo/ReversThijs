@@ -78,6 +78,37 @@ Game.Data = (function(){
         return data;
     }
 
+    const leaveGame = async function(){
+        let response = await fetch('/api/reversi/leaveBoard')
+        let data = await response.text();
+        return data;
+    }
+    
+    const gameHasBeenWon = async function(){
+        let response = await fetch('/api/reversi/isWon')
+        let data = await response.text();
+        return data;
+    }
+
+    const winningPlayer = async function(){
+        let response = await fetch('/api/reversi/winningPlayer')
+        let data = await response.text();
+        return data;
+
+    }
+
+    const playingColor = async function(){
+        let response = await fetch('/api/reversi/playingColor')
+        let data = await response.text();
+        return data;
+    }
+
+    const playerColor = async function(){
+        let response = await fetch('/api/reversi/playerColor')
+        let data = await response.text();
+        return data;
+    }
+
 
     const privateInit = function(){
         if (stateMap.environment != 'development' && stateMap.environment != 'production'){
@@ -120,6 +151,11 @@ Game.Data = (function(){
         checkPiece: checkPiece,
         placePiece: placePiece,
         getScore: getScore,
+        leaveGame: leaveGame,
+        gameHasBeenWon: gameHasBeenWon,
+        playingColor: playingColor,
+        winningPlayer: winningPlayer,
+        playerColor: playerColor,
     }
 
 })();
@@ -171,9 +207,14 @@ Game.reversi = (function () {
     var connection;
     var player1score;
     var player2score;
-
+    var playerKleur;
+    var playingKleur;
 
     const privateInit = function () {
+
+        Game.Data.playerColor().then((color)=>{
+            playerKleur = color;
+        });
 
         connection = new signalR.HubConnectionBuilder().withUrl("/reversiHub").build();
 
@@ -207,12 +248,17 @@ Game.reversi = (function () {
 
 
         let scorebord = document.getElementById('scorebord');
-        
+
         scorebord.appendChild(player1icon);
         scorebord.appendChild(player1score);
         scorebord.appendChild(divider);
         scorebord.appendChild(player2score);
         scorebord.appendChild(player2icon);
+
+        
+
+        let backToList = document.getElementById('backToList');
+        backToList.onmousedown = function () { backToListClicked() };
         
         
         //Populate the board using pieces
@@ -307,7 +353,18 @@ Game.reversi = (function () {
             }
     }
 
+
+    const backToListClicked = function (){
+        Game.Data.leaveGame().then((_)=>{
+            window.location.href = "/";
+        });
+    }
+
     const updateBord = function () {
+
+        Game.Data.playingColor().then((color)=>{
+            playingKleur = color;
+        });
 
         Game.Data.getScore().then((score)=>{
             let scoreArray = JSON.parse(score);
@@ -318,9 +375,6 @@ Game.reversi = (function () {
 
         Game.Data.getBoard().then((bord) => {
 
-            if (bord == "error 41")
-                Game.Data.initializeBoard();
-            else {
                 let speelbord = JSON.parse(bord);
                 console.log(speelbord);
                 for (let x = 0; x < 8; x++) {
@@ -352,12 +406,22 @@ Game.reversi = (function () {
                     }
 
                 }
+            
+        });
+
+        Game.Data.gameHasBeenWon().then((hasBeenWon)=>{
+            if (hasBeenWon == 'true'){
+
+
+                Game.Data.winningPlayer().then((winningPlayerName)=>{
+                    console.log(winningPlayerName);
+                });
             }
         });
     }
 
     const privateHovered = function (x, y, piece) {
-        if (piece.children.length == 0) {
+        if (piece.children.length == 0 && playingKleur == playerKleur) {
             Game.Data.checkPiece(x, y).then((canPlace) => {
                 if (canPlace == 'true') {
                     piece.classList.add("piece--selected");
@@ -372,7 +436,7 @@ Game.reversi = (function () {
         //Debug message
         console.log("x: " + x + " y: " + y)
         //Create a fiche and add it to the piece
-        if (piece.children.length == 0) {
+        if (piece.children.length == 0 && playingKleur == playerKleur) {
             Game.Data.placePiece(x, y).then((_) => {
                 if (_ == 'true') {
                     Game.Data.getBoard().then((bord) => {

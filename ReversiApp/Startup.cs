@@ -4,13 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ReversiApp.DAL;
+using ReversiApp.Data;
 using ReversiApp.Hubs;
+using ReversiApp.Models;
 
 namespace ReversiApp
 {
@@ -31,9 +35,15 @@ namespace ReversiApp
             services.AddMvc();
             services.AddSignalR();
             services.AddRazorPages();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddDbContext<SpelerContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ProductDatabase")));
-            services.AddDbContext<SpelerContext>(options => options.UseSqlServer(Configuration.GetConnectionString("IdentityContextConnection")));
-        }
+            services.AddDbContext<IdentityContext>(options =>
+                   options.UseSqlServer(
+                       Configuration.GetConnectionString("IdentityContextConnection")));
+
+            services.AddDefaultIdentity<Users>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddEntityFrameworkStores<IdentityContext>();
+           }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -58,7 +68,7 @@ namespace ReversiApp
                 
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Spel}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapHub<ReversiHub>("/reversiHub");
                 endpoints.MapRazorPages();
             });

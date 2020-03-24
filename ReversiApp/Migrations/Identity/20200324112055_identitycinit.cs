@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ReversiApp.Migrations.Identity
 {
-    public partial class CreateIdentitySchema : Migration
+    public partial class identitycinit : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -39,7 +39,9 @@ namespace ReversiApp.Migrations.Identity
                     TwoFactorEnabled = table.Column<bool>(nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
-                    AccessFailedCount = table.Column<int>(nullable: false)
+                    AccessFailedCount = table.Column<int>(nullable: false),
+                    Kleur = table.Column<int>(nullable: true),
+                    SpelToken = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

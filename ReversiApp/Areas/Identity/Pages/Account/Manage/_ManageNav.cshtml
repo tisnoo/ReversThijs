@@ -1,4 +1,8 @@
-﻿@inject SignInManager<IdentityUser> SignInManager
+﻿
+@using ReversiApp.Models;
+
+
+@inject SignInManager<Users> SignInManager
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
 }

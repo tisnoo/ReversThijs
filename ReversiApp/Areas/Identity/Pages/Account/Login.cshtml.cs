@@ -11,20 +11,21 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using ReversiApp.Models;
 
 namespace ReversiApp.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
     public class LoginModel : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly UserManager<Users> _userManager;
+        private readonly SignInManager<Users> _signInManager;
         private readonly ILogger<LoginModel> _logger;
         private readonly IEmailSender _emailSender;
 
-        public LoginModel(SignInManager<IdentityUser> signInManager, 
+        public LoginModel(SignInManager<Users> signInManager, 
             ILogger<LoginModel> logger,
-            UserManager<IdentityUser> userManager,
+            UserManager<Users> userManager,
             IEmailSender emailSender)
         {
             _userManager = userManager;
@@ -42,7 +43,7 @@ namespace ReversiApp.Areas.Identity.Pages.Account
 
         [TempData]
         public string ErrorMessage { get; set; }
-
+       
         public class InputModel
         {
             [Required]

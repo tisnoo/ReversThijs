@@ -1,0 +1,42 @@
+﻿
+@{
+    ViewData["Title"] = "Game";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Game</h1>
+<button type="button" data-target="#myModal" data-toggle="modal" class="btn btn-success">Terug naar overzicht</button>
+
+
+<div class="score" id="scorebord"></div>
+<div class="board" id="bord"></div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Alert</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Door terug te gaan naar het overzicht word je verwijdert uit dit spel, je kunt dus niet doorspelen als je de laatste speler in dit spel bent.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="backToList" class="btn btn-default">Ik snap het, doorgaan</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Annuleren</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script>
+    Game.reversi.init();
+</script>
