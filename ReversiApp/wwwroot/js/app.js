@@ -203,7 +203,7 @@ Game.reversi = (function () {
         let scorebord = document.getElementById('scorebord');
 
 
-        Game.API.getApiData('playingColor').then((color)=>{
+        Game.API.getApiData('playerColor').then((color)=>{
             playerKleur = color; 
             console.log(playerKleur);       
             if (playerKleur == 1){
@@ -358,7 +358,7 @@ Game.reversi = (function () {
 
     const updateBord = function () {
 
-        Game.API.getApiData('playerColor').then((color)=>{
+        Game.API.getApiData('playingColor').then((color)=>{
             playingKleur = color;
         });
 

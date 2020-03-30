@@ -266,7 +266,6 @@ namespace ReversiApp.Models
                             if (Bord[rijZet, x] == AandeBeurt)
                             {
                                 typeZet.Add(ZetType.HR);
-                                return true;
                             }
                             else if (Bord[rijZet, x] == Kleur.Geen)
                             {
@@ -286,7 +285,6 @@ namespace ReversiApp.Models
                             if (Bord[rijZet, x] == AandeBeurt)
                             {
                                 typeZet.Add(ZetType.HL);
-                                return true;
                             }
                             else if (Bord[rijZet, x] == Kleur.Geen)
                             {
@@ -314,7 +312,6 @@ namespace ReversiApp.Models
                             if (Bord[y, kolomZet] == AandeBeurt)
                             {
                                 typeZet.Add( ZetType.VO);
-                                return true;
                             }
                             else if (Bord[y, kolomZet] == Kleur.Geen)
                             {
@@ -335,7 +332,6 @@ namespace ReversiApp.Models
                             if (Bord[y, kolomZet] == AandeBeurt)
                             {
                                 typeZet.Add( ZetType.VB);
-                                return true;
                             }
                             else if (Bord[y, kolomZet] == Kleur.Geen)
                             {
@@ -365,7 +361,6 @@ namespace ReversiApp.Models
                             if (Bord[y, x] == AandeBeurt)
                             {
                                 typeZet.Add(ZetType.DLB);
-                                return true;
                             }
                             else if (Bord[y, x] == Kleur.Geen)
                                 break;
@@ -391,7 +386,6 @@ namespace ReversiApp.Models
                             if (Bord[y, x] == AandeBeurt)
                             {
                                 typeZet.Add(ZetType.DRO);
-                                return true;
                             }
                             else if (Bord[y, x] == Kleur.Geen)
                                 break;
@@ -419,7 +413,6 @@ namespace ReversiApp.Models
                             if (Bord[y, x] == AandeBeurt)
                             {
                                 typeZet.Add(ZetType.DRB);
-                                return true;
                             }
                             else if (Bord[y, x] == Kleur.Geen)
                                 break;
@@ -445,7 +438,6 @@ namespace ReversiApp.Models
                             if (Bord[y, x] == AandeBeurt)
                             {
                                 typeZet.Add(ZetType.DLO);
-                                return true;
                             }
                             else if (Bord[y, x] == Kleur.Geen)
                                 break;

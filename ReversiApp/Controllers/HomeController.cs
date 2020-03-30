@@ -57,7 +57,7 @@ namespace ReversiApp.Controllers
                             }
                         }
                     }
-                    if (spelers > 0 && spelers < 2)
+                    if (spelers == 1)
                     {
                         _beschikbareSpellen.Add(spel);
                     }
@@ -89,26 +89,34 @@ namespace ReversiApp.Controllers
             Spel _spel = _context.Spellen.FirstOrDefault(x => x.Token == token);
 
             int spelUsers = 0;
+            Kleur spelerKleur = Kleur.Geen;
 
             foreach (var speler in _identityContext.Users.ToList())
             {
                 if (speler.SpelToken == _spel.Token)
                 {
                     spelUsers++;
+                    spelerKleur = speler.Kleur.Value; 
                 }
             }
 
             if (spelUsers == 1)
             {
-                _currentUser.Kleur = Kleur.Zwart;
+                if (spelerKleur == Kleur.Wit)
+                {
+                    _currentUser.Kleur = Kleur.Zwart;
+                }
+                else
+                {
+                    _currentUser.Kleur = Kleur.Wit;
+                }
                 _currentUser.SpelToken = token;
                 _identityContext.SaveChanges();
                 return RedirectToAction(nameof(Game));
             }
             else
             {
-
-                return RedirectToAction(nameof(Game));
+                return RedirectToAction(nameof(Index));
             }
         }
 
