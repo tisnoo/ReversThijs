@@ -95,8 +95,16 @@ Game.API = (function(){
         }
     }
 
+    const getJoke = async function (){
+        
+        let response = await fetch('https://official-joke-api.appspot.com/random_joke');
+        let data = await response.text();
+        return data;
+    }
+
     return{
         getApiData: getApiData,
+        getJoke: getJoke,
     } 
 })();
 
@@ -169,7 +177,9 @@ Game.reversi = (function () {
 
         apiHandler('gameDescription');
         
+        jokeHandler();
 
+        registerHelpers();
 
         //Create the scoreboard
 
@@ -205,7 +215,6 @@ Game.reversi = (function () {
 
         Game.API.getApiData('playerColor').then((color)=>{
             playerKleur = color; 
-            console.log(playerKleur);       
             if (playerKleur == 1){
                 scorebord.appendChild(playername);
             scorebord.appendChild(player1icon);
@@ -238,41 +247,45 @@ Game.reversi = (function () {
         //Populate the board using pieces
         Game.API.getApiData('getBoard').then((bord) => {
 
+
+
             if (bord == "error 41")
                 Game.API.getApiData('init');
             else {
                 let speelbord = JSON.parse(bord);
-                console.log(speelbord);
-                for (let x = 0; x < 8; x++) {
-
-                    //Create bool that decides if first piece should be light or dark
-                    let isLight = false
-
-                    //if rownumber is even, first piece is light
-                    if (x % 2 == 0) {
-                        isLight = true;
-                    }
 
 
-                    for (let y = 0; y < 8; y++) {
 
-                        //create the piece and add it to the board
-                        let piece = document.createElement('div');
-                        piece.id = x.toString() + ',' + y.toString();
-                        piece.className = isLight ? 'piece piece--white' : 'piece piece--black';
-                        piece.onmousedown = function () { privateClicked(x, y, piece) };
-                        piece.onmouseout = function () { piece.classList.remove('piece--selected') }
-                        piece.onmouseover = function () { privateHovered(x, y, piece) }
-                        document.getElementById('bord').appendChild(piece);
-
-                        //Next piece is different color
-                        isLight = !isLight;
-                    }
-
-                }
+                let template = Game.Template.parseTemplate('bord',{bordArray: speelbord});
+                document.getElementById('bord').innerHTML = template;
+               
             }
+            
         });
 
+
+
+    }
+
+
+
+    const registerHelpers = function(){
+        var row = -1;
+        Handlebars.registerHelper('ifIsNotEven', function(options) {
+
+            var index = options.data.index;
+
+            if (index == 0){
+                row ++;
+            }
+            console.log(index);
+            var rowIsEvenCount = row % 2;
+            if (index % 2 === rowIsEvenCount){
+                return options.fn(this);
+            }else{
+                return options.inverse(this);
+            }
+        });
 
 
     }
@@ -288,25 +301,19 @@ Game.reversi = (function () {
             backStyle =   'fiche fiche--playerOne fade-in back'
         }
 
-        
-        fichecontainer = document.createElement('div');
-        fichecontainer.className = "fiche-container"
+        fiche = document.createElement('div');
+        fiche.innerHTML = Game.Template.parseTemplate('fiche', {frontStyle: frontStyle, backstyle: backStyle});
 
-        ficheFront = document.createElement('div');
-        ficheFront.className = frontStyle;
-        ficheBack = document.createElement('div');
-        ficheBack.className = backStyle;
+        piece.appendChild(fiche);
 
-        fichecontainer.appendChild(ficheBack);
-        fichecontainer.appendChild(ficheFront);
-
-        piece.appendChild(fichecontainer);
     }
 
     const flipPiece = function(x,y,piece,speelbord){
-        let fichecontainer = piece.firstChild
+
+        let temp = piece.children[0];
+        let fichecontainer = temp.children[0];
         //Om te beginnen is kleur 1
-            if (fichecontainer.lastChild.classList.contains("fiche--playerTwo")){
+            if (fichecontainer.children[fichecontainer.children.length-1].classList.contains("fiche--playerTwo")){
                 //Was zwart in het begin
                 kleur = 2;
 
@@ -358,6 +365,7 @@ Game.reversi = (function () {
 
     const updateBord = function () {
 
+
         Game.API.getApiData('playingColor').then((color)=>{
             playingKleur = color;
         });
@@ -374,31 +382,19 @@ Game.reversi = (function () {
         Game.API.getApiData('getBoard').then((bord) => {
 
                 let speelbord = JSON.parse(bord);
-                console.log(speelbord);
                 for (let x = 0; x < 8; x++) {
 
-                    //Create bool that decides if first piece should be light or dark
-                    let isLight = false
-
-                    //if rownumber is even, first piece is light
-                    if (x % 2 == 0) {
-                        isLight = true;
-                    }
 
 
                     for (let y = 0; y < 8; y++) {
-
-                        //Next piece is different color
-                        isLight = !isLight;
-
                         //Check if piece needs to have a fiche
-                        if (speelbord[x][y] != 0) {
-                            let piece = document.getElementById('bord').children[(x * 8) + y];
+                        if (speelbord[y][x] != 0) {
+                            let piece = document.getElementById('bord').children[0].children[(y * 8) + x];
 
                             if (piece.children.length == 0) {
-                                placeFiche(x,y,piece,speelbord);
+                                placeFiche(y,x,piece,speelbord);
                             } else {
-                                flipPiece(x,y,piece,speelbord);
+                                flipPiece(y,x,piece,speelbord);
                             }
                         }
                     }
@@ -412,7 +408,6 @@ Game.reversi = (function () {
 
 
                 Game.API.getApiData('winningPlayer').then((winningPlayerName)=>{
-                    console.log(winningPlayerName);
                     let winningplayer = document.createElement('h1');
                     winningplayer.innerText = "Speler " + winningPlayerName + " heeft gewonnnen, je bent nu vrij om het spel te verlaten";
                     document.getElementById('bord').innerHTML = "";
@@ -425,11 +420,16 @@ Game.reversi = (function () {
 
     }
 
-    const privateHovered = function (x, y, piece) {
-        if (piece.children.length == 0 && playingKleur == playerKleur) {
+    const privateHovered = function (index) {
+        
+        y = index % 8;
+        x = Math.floor(index/8);
+
+
+        if ( document.getElementById("bord").children[0].children[index].children.length == 0 && playingKleur == playerKleur) {
             Game.API.getApiData('checkPiece',x,y).then((canPlace) => {
                 if (canPlace == 'true') {
-                    piece.classList.add("piece--selected");
+                    document.getElementById("bord").children[0].children[index].classList.add("piece--selected");
                 }
             });
 
@@ -437,11 +437,15 @@ Game.reversi = (function () {
     }
 
 
-    const privateClicked = function (x, y, piece) {
+    const privateClicked = function (index) {
+
+        y = index % 8;
+        x = Math.floor(index/8);
+
         //Debug message
-        console.log("x: " + x + " y: " + y)
         //Create a fiche and add it to the piece
-        if (piece.children.length == 0 && playingKleur == playerKleur) {
+        if (document.getElementById("bord").children[0].children[index].children.length == 0 && playingKleur == playerKleur) {
+            
             Game.API.getApiData('placePiece',x,y).then((_) => {
                 if (_ == 'true') {
                     Game.API.getApiData('getBoard').then((bord) => {
@@ -455,22 +459,23 @@ Game.reversi = (function () {
 
     }
 
-    const showFiche = function (x, y) {
+    const privateLeft = function(index){
 
-        if (x >= 0 && x < 8 && y >= 0 && y < 8) {
+        document.getElementById("bord").children[0].children[index].classList.remove('piece--selected')
 
-            let selectedPiece = 8 * y + x;
-            let varDocument = document.getElementById('bord').children[selectedPiece];
-            if (varDocument.children.length == 0) {
-                let fiche = document.createElement('div');
-                fiche.className = 'fiche fiche--playerOne fade-in';
-                varDocument.appendChild(fiche);
-            } else {
-                console.log("De geselecteerde positie bevat al een stuk");
-            }
-        } else {
-            console.log("De geselecteerde positie bestaat niet op het bord!");
-        }
+    }
+
+
+
+
+    const jokeHandler = function () {
+        Game.API.getJoke().then((joke)=>{
+
+            jsonJoke = JSON.parse(joke);
+
+            let template = Game.Template.parseTemplate('joke',{setup: jsonJoke.setup, punchline: jsonJoke.punchline});
+            updateDOM('joke', template);
+        })
     }
 
 
@@ -485,12 +490,12 @@ Game.reversi = (function () {
     //Stap 2, template parsen
     const pasteTemplate = function (data){
         let template = Game.Template.parseTemplate('description',{description : data});
-        updateDOM(template);
+        updateDOM('description', template);
     }
 
     //Stap 3, toepassen in DOM
-    const updateDOM = function(templateHTML){
-        document.getElementById('description').innerHTML = templateHTML;
+    const updateDOM = function(element, templateHTML){
+        document.getElementById(element).innerHTML = templateHTML;
     }
 
     let configMap = {
@@ -499,9 +504,11 @@ Game.reversi = (function () {
 
 
 
-
     return {
         init: privateInit,
+        onMouseDown: privateClicked,
+        onMouseOver: privateHovered,
+        onMouseLeft: privateLeft,
     }
 
 })();
@@ -514,7 +521,6 @@ Game.Stats = (function (){
             
             let scoreArray = JSON.parse(score);
 
-            console.log(scoreArray);
 
             configMap.player1chartData =(scoreArray[0]);
             configMap.player2chartData= (scoreArray[1]);
@@ -531,7 +537,6 @@ Game.Stats = (function (){
             document.getElementById('chart').innerHTML = template;
 
             styleChart(player1name, player2name);
-            console.log(configMap.beurtLabelData);
         });
     }
 
@@ -612,6 +617,8 @@ Game.Template = (function (){
 
         return template(data)
     }
+
+
 
 
     return {
