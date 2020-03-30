@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Game";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -10,7 +9,19 @@
 
 <div class="score" id="scorebord"></div>
 <div class="board" id="bord"></div>
+<div class="footer">
+    <div id="description"></div>
+    <h4>Spelregels</h4>
+    <p>
+        Het spel start in de positie zoals hieronder getoont wordt. Op een reversi bord bestaande uit 64 vierkanten onderverdeelt 8x8.
+        Elk reversi stuk heeft een witte zijde en een zwarte zijde. Opuw beurt, plaats je een stuk op het bord met uw kleur naar boven. Je plaatst het stuk zo dat het stuk van je tegenstander, of een rij van uw tegenstander geblokkeerd wordt door uw stuk. Dan worden alle stukken die tussen us stukken liggen omgedraaid naar uw kleur.
+        Een geldige zet is een stuk plaatsen op een leeg vakje.
+        Als je geen legale zet kan maken of, je kan geen stukken nemen van je tegenstander. Dan moet je passen. En is het de beurt aan je tegenstander.
+        Als geen van de spelers nog een stuk kunnen plaatsten, is het spel over en wint de speler met de meeste stukken.
+    </p>
 
+    <div id="chart"></div>
+</div>
 
 <!-- Modal -->
 <div class="modal fade" id="myModal" role="dialog">

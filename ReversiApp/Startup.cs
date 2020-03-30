@@ -39,7 +39,7 @@ namespace ReversiApp
             services.AddDbContext<SpelerContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ProductDatabase")));
             services.AddDbContext<IdentityContext>(options =>
                    options.UseSqlServer(
-                       Configuration.GetConnectionString("IdentityContextConnection")));
+                       Configuration.GetConnectionString("ProductDatabase")));
 
             services.AddDefaultIdentity<Users>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<IdentityContext>();
@@ -59,6 +59,12 @@ namespace ReversiApp
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            app.Use(async (context, next) =>
+            {
+                context.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
+                await next();
+            }
+            );
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseRouting();

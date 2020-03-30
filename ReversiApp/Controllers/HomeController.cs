@@ -40,13 +40,34 @@ namespace ReversiApp.Controllers
 
         public IActionResult Index()
         {
-            //if (_currentUser.SpelToken == null)
-            //{
-                return View(_context.Spellen.ToList());
-            //}
-            //else{
-            //    return RedirectToAction(nameof(Game));
-            //}
+            if (_currentUser.SpelToken == null)
+            {
+                List<Spel> _beschikbareSpellen = new List<Spel>();
+
+                foreach (var spel in _context.Spellen.ToList())
+                {
+                    int spelers = 0;
+                    foreach (var speler in _identityContext.Users.ToList())
+                    {
+                        if (speler.SpelToken != null)
+                        {
+                            if (spel.Token == speler.SpelToken)
+                            {
+                                spelers++;
+                            }
+                        }
+                    }
+                    if (spelers > 0 && spelers < 2)
+                    {
+                        _beschikbareSpellen.Add(spel);
+                    }
+                }
+
+                return View(_beschikbareSpellen);
+            }
+            else{
+                return RedirectToAction(nameof(Game));
+            }
             
         }
         // GET: Spel/Create
@@ -63,10 +84,32 @@ namespace ReversiApp.Controllers
 
         public ActionResult Join(string token)
         {
-            _currentUser.Kleur = Kleur.Zwart;
-            _currentUser.SpelToken = token;
-            _identityContext.SaveChanges();
-            return RedirectToAction(nameof(Game));
+           
+
+            Spel _spel = _context.Spellen.FirstOrDefault(x => x.Token == token);
+
+            int spelUsers = 0;
+
+            foreach (var speler in _identityContext.Users.ToList())
+            {
+                if (speler.SpelToken == _spel.Token)
+                {
+                    spelUsers++;
+                }
+            }
+
+            if (spelUsers == 1)
+            {
+                _currentUser.Kleur = Kleur.Zwart;
+                _currentUser.SpelToken = token;
+                _identityContext.SaveChanges();
+                return RedirectToAction(nameof(Game));
+            }
+            else
+            {
+
+                return RedirectToAction(nameof(Game));
+            }
         }
 
         public ActionResult backToList()

@@ -19,13 +19,28 @@ namespace ReversiApp.Models
             public Kleur[,] Bord { get; set; }
             public string BordJson { get; set; }
             public Kleur AandeBeurt { get; set; }
-            private ZetType typeZet;
+            [NotMapped]
+            public List<List<int>> PuntenHistorie { get; set; }
+            public string PuntenHistorieJson { get; set; }
+            private List<ZetType> typeZet;
+       
             
             public Spel()
             {
-                
-                //Creeër nieuw bord
-                Bord = new Kleur[8, 8];
+
+            //Lijst voor zetTypes
+            typeZet = new List<ZetType>();
+
+            //Maak list aan
+            PuntenHistorie = new List<List<int>>();
+
+            //Add lists to list
+            PuntenHistorie.Add(new List<int>());
+            PuntenHistorie.Add(new List<int>());
+
+
+            //Creeër nieuw bord
+            Bord = new Kleur[8, 8];
                 
                 //Vul het bord.
                 for (int y = 0; y < Bord.GetLength(0); y++)
@@ -47,7 +62,11 @@ namespace ReversiApp.Models
                 Bord[4, 3] = Kleur.Zwart;
 
 
-            }
+            PuntenHistorieJson = JsonConvert.SerializeObject(PuntenHistorie);
+            addToHistory();
+
+
+        }
 
 
             public bool Afgelopen()
@@ -63,27 +82,43 @@ namespace ReversiApp.Models
                 }
                 return true;
             }
-
-
-            public int[] score()
+        public int scorePlayerWhite()
         {
-            int witScore = 0;
-            int zwartScore = 0;
+            int score = 0;
             for (int y = 0; y < Bord.GetLength(0); y++)
             {
                 for (int x = 0; x < Bord.GetLength(0); x++)
                 {
                     if (Bord[y, x] == Kleur.Wit)
                     {
-                        witScore++;
-                    }else if (Bord[y,x] == Kleur.Zwart)
-                    {
-                        zwartScore++;
+                        score++;
                     }
                 }
             }
+            return score;
+        }
 
-            int[] returnvalue = { witScore,zwartScore};
+        public int scorePlayerBlack()
+        {
+            int score = 0;
+            for (int y = 0; y < Bord.GetLength(0); y++)
+            {
+                for (int x = 0; x < Bord.GetLength(0); x++)
+                {
+                    if (Bord[y, x] == Kleur.Zwart)
+                    {
+                        score++;
+                    }
+                }
+            }
+            return score;
+        }
+
+            public int[] score()
+        {
+           
+
+            int[] returnvalue = { scorePlayerWhite(),scorePlayerBlack()};
             return returnvalue;
         }
 
@@ -93,55 +128,62 @@ namespace ReversiApp.Models
                 {
                     Bord[rijZet, kolomZet] = AandeBeurt;
 
-                    switch (typeZet)
-                    {
-                        case ZetType.HL:
-                            {
-                                DoeZetHL(rijZet, kolomZet);
-                                break;
-                            }
-                        case ZetType.HR:
-                            {
-                                DoeZetHR(rijZet, kolomZet);
-                                break;
-                            }
-                        case ZetType.VO:
-                            {
-                                DoeZetVO(rijZet, kolomZet);
-                                break;
-                            }
-                        case ZetType.VB:
-                            {
-                                DoeZetVB(rijZet, kolomZet);
-                                break;
-                            }
-                        case ZetType.DLB:
-                            {
-                                DoeZetDLB(rijZet, kolomZet);
-                                break;
-                            }
-                        case ZetType.DRO:
-                            {
-                                DoeZetDRO(rijZet, kolomZet);
-                                break;
-                            }
-                        case ZetType.DLO:
-                            {
-                                DoeZetDLO(rijZet, kolomZet);
-                                break;
-                            }
-                        case ZetType.DRB:
-                            {
-                                DoeZetDRB(rijZet, kolomZet);
-                                break;
-                            }
-                    }
-                    Pas();
-                    return true;
-                }
+                foreach (var zet in typeZet)
+                {
+                    if (zet == ZetType.HL)
+                        DoeZetHL(rijZet, kolomZet);
 
-                return false;
+                    else if (zet == ZetType.HR)
+                        DoeZetHR(rijZet, kolomZet);
+
+
+                    else if (zet == ZetType.VO)
+                        DoeZetVO(rijZet, kolomZet);
+
+
+                    else if (zet == ZetType.VB)
+                        DoeZetVB(rijZet, kolomZet);
+
+
+                    else if (zet == ZetType.DLB)
+                        DoeZetDLB(rijZet, kolomZet);
+
+
+                    else if (zet == ZetType.DRO)
+                        DoeZetDRO(rijZet, kolomZet);
+
+
+                    else if (zet == ZetType.DLO)
+                        DoeZetDLO(rijZet, kolomZet);
+
+
+                    else if (zet == ZetType.DRB)
+                        DoeZetDRB(rijZet, kolomZet);
+                    }
+
+                Pas();
+                addToHistory();
+                return true;
+
             }
+
+
+            return false;
+                }
+           
+
+            public void addToHistory()
+        {
+
+            PuntenHistorie = JsonConvert.DeserializeObject<List<List<int>>>(PuntenHistorieJson);
+
+
+            PuntenHistorie[0].Add(scorePlayerWhite());
+            PuntenHistorie[1].Add(scorePlayerBlack());
+
+
+            PuntenHistorieJson = JsonConvert.SerializeObject(PuntenHistorie);
+        }
 
             public Kleur OverwegendeKleur()
             {
@@ -178,8 +220,12 @@ namespace ReversiApp.Models
 
             public bool ZetMogelijk(int rijZet, int kolomZet)
             {
-                //If the index is outside of the board or there is already a color on the location, return false, else return true
-                //Check eerst of het blok uberhaupt geplaatst kan worden, of er niet al een kleur aan gebonden is.
+            //If the index is outside of the board or there is already a color on the location, return false, else return true
+            //Check eerst of het blok uberhaupt geplaatst kan worden, of er niet al een kleur aan gebonden is.
+
+            //Maak eerst de zettype lijst leeg, zodat deze weer ingevuld kan worden
+                typeZet.Clear();
+
                 try
                 {
                     if (Bord[rijZet, kolomZet] != Kleur.Geen)
@@ -192,14 +238,14 @@ namespace ReversiApp.Models
                     return false;
                 }
 
-                if (checkHorizontal(rijZet, kolomZet))
-                    return true;
+            checkHorizontal(rijZet, kolomZet);
+            checkVertical(rijZet, kolomZet);
+            checkDiagnol(rijZet, kolomZet);
 
-                if (checkVertical(rijZet, kolomZet))
-                    return true;
-
-                if (checkDiagnol(rijZet, kolomZet))
-                    return true;
+            if (typeZet.Count > 0)
+            {
+                return true;
+            }
 
                 return false;
             }
@@ -219,7 +265,7 @@ namespace ReversiApp.Models
                         {
                             if (Bord[rijZet, x] == AandeBeurt)
                             {
-                                typeZet = ZetType.HR;
+                                typeZet.Add(ZetType.HR);
                                 return true;
                             }
                             else if (Bord[rijZet, x] == Kleur.Geen)
@@ -239,7 +285,7 @@ namespace ReversiApp.Models
                         {
                             if (Bord[rijZet, x] == AandeBeurt)
                             {
-                                typeZet = ZetType.HL;
+                                typeZet.Add(ZetType.HL);
                                 return true;
                             }
                             else if (Bord[rijZet, x] == Kleur.Geen)
@@ -267,7 +313,7 @@ namespace ReversiApp.Models
                         {
                             if (Bord[y, kolomZet] == AandeBeurt)
                             {
-                                typeZet = ZetType.VO;
+                                typeZet.Add( ZetType.VO);
                                 return true;
                             }
                             else if (Bord[y, kolomZet] == Kleur.Geen)
@@ -288,7 +334,7 @@ namespace ReversiApp.Models
                         {
                             if (Bord[y, kolomZet] == AandeBeurt)
                             {
-                                typeZet = ZetType.VB;
+                                typeZet.Add( ZetType.VB);
                                 return true;
                             }
                             else if (Bord[y, kolomZet] == Kleur.Geen)
@@ -318,7 +364,7 @@ namespace ReversiApp.Models
                         {
                             if (Bord[y, x] == AandeBeurt)
                             {
-                                typeZet = ZetType.DLB;
+                                typeZet.Add(ZetType.DLB);
                                 return true;
                             }
                             else if (Bord[y, x] == Kleur.Geen)
@@ -344,7 +390,7 @@ namespace ReversiApp.Models
                         {
                             if (Bord[y, x] == AandeBeurt)
                             {
-                                typeZet = ZetType.DRO;
+                                typeZet.Add(ZetType.DRO);
                                 return true;
                             }
                             else if (Bord[y, x] == Kleur.Geen)
@@ -372,7 +418,7 @@ namespace ReversiApp.Models
                         {
                             if (Bord[y, x] == AandeBeurt)
                             {
-                                typeZet = ZetType.DRB;
+                                typeZet.Add(ZetType.DRB);
                                 return true;
                             }
                             else if (Bord[y, x] == Kleur.Geen)
@@ -398,7 +444,7 @@ namespace ReversiApp.Models
                         {
                             if (Bord[y, x] == AandeBeurt)
                             {
-                                typeZet = ZetType.DLO;
+                                typeZet.Add(ZetType.DLO);
                                 return true;
                             }
                             else if (Bord[y, x] == Kleur.Geen)

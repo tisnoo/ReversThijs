@@ -13,6 +13,7 @@ using System.Threading.Tasks;
         string Token { get; set; }
         ICollection<Users> Spelers { get; set; }
         Kleur[,] Bord { get; set; }
+        List<List<int>> PuntenHistorie { get; set; }
         Kleur AandeBeurt { get; set; }
         bool Pas();
         bool Afgelopen();

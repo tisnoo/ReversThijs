@@ -56,6 +56,8 @@ namespace API.Controllers
             }
         }
 
+
+
         [Route("api/reversi/playingColor")]
         public Kleur PlayingColor()
         {
@@ -66,6 +68,13 @@ namespace API.Controllers
         {
             return _currentUser.Kleur.Value;
         }
+
+        [Route("api/reversi/gameDescription")]
+        public string GameDescription()
+        {
+            return _context.Omschrijving;
+        }
+
 
 
         [Route("api/reversi/winningPlayer")]
@@ -119,6 +128,30 @@ namespace API.Controllers
             identityContext.SaveChanges();
         }
 
+
+        [HttpGet("{kleur}")]
+        [Route("api/reversi/getPlayerName")]
+        public string GetPlayerName(int kleur)
+        {
+            Users tempUser;
+
+            if (kleur == 1)
+            {
+                tempUser = identityContext.Users.FirstOrDefault(x => x.SpelToken == _context.Token && x.Kleur.Value == Kleur.Wit);
+            }
+            else
+            {
+                tempUser = identityContext.Users.FirstOrDefault(x => x.SpelToken == _context.Token && x.Kleur.Value == Kleur.Zwart);
+            }
+            if (tempUser != null)
+            {
+                return tempUser.UserName;
+            }
+            else
+            {
+                return "Nog geen tweede speler";
+            }
+        }
 
         [HttpGet("{x}/{y}")]
         [Route("api/reversi/checkPiece")]
@@ -181,6 +214,15 @@ namespace API.Controllers
 
             _context.Bord = JsonConvert.DeserializeObject<Kleur[,]>(_context.BordJson);
             return JsonConvert.SerializeObject(_context.score());
+
+        }
+
+        [HttpGet]
+        [Route("api/reversi/getscorehistory")]
+        public string GetScoreHistory()
+        {
+
+            return _context.PuntenHistorieJson;
 
         }
 

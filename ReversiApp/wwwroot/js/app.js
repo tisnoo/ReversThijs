@@ -41,82 +41,18 @@ const Game = (function(url){
 
 Game.Data = (function(){
 
-    //Api key: 91803eeba9eb3fb7b32c8f2aac031498
-
-      
-    const get = async function(){
-         let response = await fetch('/api/reversi/aanzet');
-         let data = await response.text();
-         return data;
+     const apiCallNoParam = async function(method){
+        
+        let response = await fetch('/api/reversi/'+method);
+        let data = await response.text();
+        return data;
      }
 
-     async function initializeBoard(){
-         let response = await fetch('/api/reversi/init');
+     const apiCallParam = async function(method, x,y){
+        let response = await fetch('/api/reversi/'+method+"?x="+x+"&y="+y);
+        let data = await response.text();
+        return data;
      }
-
-     const getBoard = async function(){
-         let response = await fetch('/api/reversi/getBoard');
-         let data = await response.text();
-         return data;
-     }
-
-     const getScore = async function(){
-         let response = await fetch('/api/reversi/getscore');
-         let data = await response.text();
-         return data;
-     }
-
-     const checkPiece = async function(x,y){
-        let response = await fetch('/api/reversi/checkPiece?x='+x+'&y='+y);
-        let data = await response.text();
-        return data;
-    }
-
-    const placePiece = async function(x,y){
-        let response = await fetch('/api/reversi/placePiece?x='+x+'&y='+y);
-        let data = await response.text();
-        return data;
-    }
-
-    const leaveGame = async function(){
-        let response = await fetch('/api/reversi/leaveBoard')
-        let data = await response.text();
-        return data;
-    }
-    
-    const gameHasBeenWon = async function(){
-        let response = await fetch('/api/reversi/isWon')
-        let data = await response.text();
-        return data;
-    }
-
-    const winningPlayer = async function(){
-        let response = await fetch('/api/reversi/winningPlayer')
-        let data = await response.text();
-        return data;
-
-    }
-
-    const playingColor = async function(){
-        let response = await fetch('/api/reversi/playingColor')
-        let data = await response.text();
-        return data;
-    }
-
-    const playerColor = async function(){
-        let response = await fetch('/api/reversi/playerColor')
-        let data = await response.text();
-        return data;
-    }
-
-
-    const privateInit = function(){
-        if (stateMap.environment != 'development' && stateMap.environment != 'production'){
-            return new Error("De environment is niet development of production");
-        }else{
-            console.log("Hallo, vanuit de submodule data");
-        }
-    }
 
     const getMockData = function(url){
         const mockData = configMap.mock;
@@ -144,20 +80,24 @@ Game.Data = (function(){
     }
 
     return {
-        init: privateInit,
-        get: get,
-        initializeBoard: initializeBoard,
-        getBoard: getBoard,
-        checkPiece: checkPiece,
-        placePiece: placePiece,
-        getScore: getScore,
-        leaveGame: leaveGame,
-        gameHasBeenWon: gameHasBeenWon,
-        playingColor: playingColor,
-        winningPlayer: winningPlayer,
-        playerColor: playerColor,
+        apiCallNoParam: apiCallNoParam,
+        apiCallParam: apiCallParam,
     }
 
+})();
+Game.API = (function(){
+
+    const getApiData = function async (apiMethod, param1, param2){
+        if (param1 == null && param2 == null){
+            return Game.Data.apiCallNoParam(apiMethod);
+        }else{
+            return Game.Data.apiCallParam(apiMethod,param1,param2);
+        }
+    }
+
+    return{
+        getApiData: getApiData,
+    } 
 })();
 
 Game.Model = (function () {
@@ -207,14 +147,14 @@ Game.reversi = (function () {
     var connection;
     var player1score;
     var player2score;
+    var playername;
+    var player2name;
     var playerKleur;
     var playingKleur;
 
     const privateInit = function () {
 
-        Game.Data.playerColor().then((color)=>{
-            playerKleur = color;
-        });
+
 
         connection = new signalR.HubConnectionBuilder().withUrl("/reversiHub").build();
 
@@ -227,6 +167,10 @@ Game.reversi = (function () {
         });
 
 
+        apiHandler('gameDescription');
+        
+
+
         //Create the scoreboard
 
         let player1icon = document.createElement('div');
@@ -235,6 +179,15 @@ Game.reversi = (function () {
 
         let player2icon = document.createElement('div');
         player2icon.className = 'fiche fiche--playerTwo fade-in margin';
+
+        playername = document.createElement('p');
+        playername.innerText = "laden...";
+
+        player2name = document.createElement('p');
+        player2name.innerText = "Nog geen tweede speler!";
+
+
+
 
         player1score = document.createElement('h2');
         player1score.innerText = "0";
@@ -249,11 +202,32 @@ Game.reversi = (function () {
 
         let scorebord = document.getElementById('scorebord');
 
-        scorebord.appendChild(player1icon);
-        scorebord.appendChild(player1score);
-        scorebord.appendChild(divider);
-        scorebord.appendChild(player2score);
-        scorebord.appendChild(player2icon);
+
+        Game.API.getApiData('playingColor').then((color)=>{
+            playerKleur = color; 
+            console.log(playerKleur);       
+            if (playerKleur == 1){
+                scorebord.appendChild(playername);
+            scorebord.appendChild(player1icon);
+            scorebord.appendChild(player1score);
+            scorebord.appendChild(divider);
+            scorebord.appendChild(player2score);
+            scorebord.appendChild(player2icon);
+            scorebord.appendChild(player2name);
+            }else{
+                scorebord.appendChild(playername);
+                scorebord.appendChild(player2icon);
+                scorebord.appendChild(player2score);
+                scorebord.appendChild(divider);
+                scorebord.appendChild(player1score);
+                scorebord.appendChild(player1icon);
+                scorebord.appendChild(player2name);
+            }
+
+            
+            updateBord();
+        });
+
 
         
 
@@ -262,10 +236,10 @@ Game.reversi = (function () {
         
         
         //Populate the board using pieces
-        Game.Data.getBoard().then((bord) => {
+        Game.API.getApiData('getBoard').then((bord) => {
 
             if (bord == "error 41")
-                Game.Data.initializeBoard();
+                Game.API.getApiData('init');
             else {
                 let speelbord = JSON.parse(bord);
                 console.log(speelbord);
@@ -299,7 +273,7 @@ Game.reversi = (function () {
             }
         });
 
-        updateBord();
+
 
     }
 
@@ -355,25 +329,49 @@ Game.reversi = (function () {
 
 
     const backToListClicked = function (){
-        Game.Data.leaveGame().then((_)=>{
+        Game.API.getApiData('leaveBoard').then((_)=>{
             window.location.href = "/";
         });
     }
 
+    const updateNaam = function(){
+        Game.API.getApiData('getPlayerName?kleur='+1).then((naam)=>{
+            if (playerKleur == 1){
+                playername.innerText = naam;
+            }else{
+                player2name.innerText = naam;
+            }
+        });
+        Game.API.getApiData('getPlayerName?kleur='+2).then((naam)=>{
+            if (playerKleur == 2){
+                playername.innerText = naam;
+            }else{
+                player2name.innerText = naam;
+            }
+
+
+            
+        Game.Stats.init(playername.innerText, player2name.innerText);
+        });
+    }
+
+
     const updateBord = function () {
 
-        Game.Data.playingColor().then((color)=>{
+        Game.API.getApiData('playerColor').then((color)=>{
             playingKleur = color;
         });
 
-        Game.Data.getScore().then((score)=>{
+        Game.API.getApiData('getscore').then((score)=>{
             let scoreArray = JSON.parse(score);
 
             player1score.innerText = scoreArray[0];
             player2score.innerText = scoreArray[1];
         });
 
-        Game.Data.getBoard().then((bord) => {
+        updateNaam();
+
+        Game.API.getApiData('getBoard').then((bord) => {
 
                 let speelbord = JSON.parse(bord);
                 console.log(speelbord);
@@ -409,20 +407,27 @@ Game.reversi = (function () {
             
         });
 
-        Game.Data.gameHasBeenWon().then((hasBeenWon)=>{
+        Game.API.getApiData('isWon').then((hasBeenWon)=>{
             if (hasBeenWon == 'true'){
 
 
-                Game.Data.winningPlayer().then((winningPlayerName)=>{
+                Game.API.getApiData('winningPlayer').then((winningPlayerName)=>{
                     console.log(winningPlayerName);
+                    let winningplayer = document.createElement('h1');
+                    winningplayer.innerText = "Speler " + winningPlayerName + " heeft gewonnnen, je bent nu vrij om het spel te verlaten";
+                    document.getElementById('bord').innerHTML = "";
+                    document.getElementById('bord').appendChild(winningplayer);
+
+                    
                 });
             }
         });
+
     }
 
     const privateHovered = function (x, y, piece) {
         if (piece.children.length == 0 && playingKleur == playerKleur) {
-            Game.Data.checkPiece(x, y).then((canPlace) => {
+            Game.API.getApiData('checkPiece',x,y).then((canPlace) => {
                 if (canPlace == 'true') {
                     piece.classList.add("piece--selected");
                 }
@@ -437,9 +442,9 @@ Game.reversi = (function () {
         console.log("x: " + x + " y: " + y)
         //Create a fiche and add it to the piece
         if (piece.children.length == 0 && playingKleur == playerKleur) {
-            Game.Data.placePiece(x, y).then((_) => {
+            Game.API.getApiData('placePiece',x,y).then((_) => {
                 if (_ == 'true') {
-                    Game.Data.getBoard().then((bord) => {
+                    Game.API.getApiData('getBoard').then((bord) => {
                         connection.invoke("sendMessage", "").catch(function (err) {
                             return console.error(err.toString());
                         });
@@ -468,14 +473,149 @@ Game.reversi = (function () {
         }
     }
 
+
+    //Stap 1, data ophalen
+    const apiHandler = function async(apiLink){
+        Game.API.getApiData(apiLink).then((data)=>{
+            pasteTemplate(data);    
+        });
+    }
+
+
+    //Stap 2, template parsen
+    const pasteTemplate = function (data){
+        let template = Game.Template.parseTemplate('description',{description : data});
+        updateDOM(template);
+    }
+
+    //Stap 3, toepassen in DOM
+    const updateDOM = function(templateHTML){
+        document.getElementById('description').innerHTML = templateHTML;
+    }
+
     let configMap = {
         api: "temp",
     }
 
 
+
+
     return {
         init: privateInit,
-        showFiche: showFiche,
+    }
+
+})();
+Game.Stats = (function (){
+
+
+
+    const privateInit = function(player1name, player2name){
+        Game.API.getApiData('getscorehistory').then((score)=>{
+            
+            let scoreArray = JSON.parse(score);
+
+            console.log(scoreArray);
+
+            configMap.player1chartData =(scoreArray[0]);
+            configMap.player2chartData= (scoreArray[1]);
+            configMap.beurtLabelData = [];
+
+            for (let beurtCount = 0; beurtCount < scoreArray[0].length; beurtCount++){
+                
+            configMap.beurtLabelData.push(beurtCount);
+            }
+
+            
+            let template = Game.Template.parseTemplate('chart');
+            
+            document.getElementById('chart').innerHTML = template;
+
+            styleChart(player1name, player2name);
+            console.log(configMap.beurtLabelData);
+        });
+    }
+
+    const styleChart = function(player1name, player2name){
+        var ctx = document.getElementById('myChart').getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: configMap.beurtLabelData,
+        datasets: [{
+            label: player1name,
+            data: configMap.player1chartData,
+            borderWidth: 2,
+            fill: false,
+            borderColor: "blue",
+        },{
+            label: player2name,
+            data: configMap.player2chartData,
+            borderWidth: 2,
+            fill: false,
+            borderColor: "red",
+        }]
+    },
+    options: {
+        title: {
+            display: true,
+            text: "Punten over aantal beurten"
+        },
+        scales: { 
+            xAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Beurten',
+                }
+            
+        }],
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true,
+                },
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Punten',
+                    }
+                
+            }]
+        }
+    }
+});
+    }
+
+    const configMap = {
+            'beurt': 0,
+            'beurtLabelData' : [0,1,2],
+            'player1chartData' : [1,5,61],
+            'player2chartData' : [1,61,3],
+    };
+
+    return {
+        init: privateInit, 
+    }
+
+
+})();
+Game.Template = (function (){
+
+
+    const getTemplate = function(templateName){
+
+
+        return spa_templates["templates"]["templates"][templateName];
+    }
+
+
+    const parseTemplate = function(templateName, data){
+
+        let template = getTemplate(templateName);
+
+        return template(data)
+    }
+
+
+    return {
+        parseTemplate: parseTemplate,
     }
 
 })();
