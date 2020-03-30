@@ -91,33 +91,41 @@ namespace ReversiApp.Controllers
             int spelUsers = 0;
             Kleur spelerKleur = Kleur.Geen;
 
-            foreach (var speler in _identityContext.Users.ToList())
+            if (_spel != null)
             {
-                if (speler.SpelToken == _spel.Token)
+                foreach (var speler in _identityContext.Users.ToList())
                 {
-                    spelUsers++;
-                    spelerKleur = speler.Kleur.Value; 
+                    if (speler.SpelToken == _spel.Token)
+                    {
+                        spelUsers++;
+                        spelerKleur = speler.Kleur.Value;
+                    }
                 }
-            }
 
-            if (spelUsers == 1)
-            {
-                if (spelerKleur == Kleur.Wit)
+                if (spelUsers == 1)
                 {
-                    _currentUser.Kleur = Kleur.Zwart;
+                    if (spelerKleur == Kleur.Wit)
+                    {
+                        _currentUser.Kleur = Kleur.Zwart;
+                    }
+                    else
+                    {
+                        _currentUser.Kleur = Kleur.Wit;
+                    }
+                    _currentUser.SpelToken = token;
+                    _identityContext.SaveChanges();
+                    return RedirectToAction(nameof(Game));
                 }
                 else
                 {
-                    _currentUser.Kleur = Kleur.Wit;
+                    return RedirectToAction(nameof(Index));
                 }
-                _currentUser.SpelToken = token;
-                _identityContext.SaveChanges();
-                return RedirectToAction(nameof(Game));
             }
             else
             {
                 return RedirectToAction(nameof(Index));
             }
+           
         }
 
         public ActionResult backToList()
