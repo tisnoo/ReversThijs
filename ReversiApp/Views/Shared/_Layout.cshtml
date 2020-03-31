@@ -22,16 +22,14 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <partial name="_LoginPartial" />
                     <ul class="navbar-nav flex-grow-1">
-                        @if (this.User.IsInRole("Administrator"))
-                        {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Spelers" asp-action="">Spel</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Spel" asp-action="">Spel</a>
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Spelers" asp-action="">Spelers</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Speler" asp-action="">Spelers</a>
                             </li>
-                        }
+                        
                     </ul>
                 </div>
             </div>

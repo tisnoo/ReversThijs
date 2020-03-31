@@ -270,14 +270,22 @@ Game.reversi = (function () {
 
 
     const registerHelpers = function(){
-        var row = -1;
+        console.log("test");
+        Handlebars.registerHelper('forloop', function(block) {
+            var accum = '';
+            for(var i = 0; i < 64; ++i){
+            block.data.index = i;
+                accum += block.fn(i);
+            }
+            return accum;
+        });
+
         Handlebars.registerHelper('ifIsNotEven', function(options) {
 
             var index = options.data.index;
 
-            if (index == 0){
-                row ++;
-            }
+            var row = Math.floor(index / 8) % 2;
+        
             console.log(index);
             var rowIsEvenCount = row % 2;
             if (index % 2 === rowIsEvenCount){

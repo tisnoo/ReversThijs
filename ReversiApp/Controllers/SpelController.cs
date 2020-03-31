@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ReversiApp.DAL;
 using ReversiApp.Models;
 
@@ -28,9 +29,24 @@ namespace ReversiApp.Controllers
         }
 
         // GET: Spel/Details/5
-        public ActionResult Details(int id)
+        public async Task<IActionResult> Details(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+
+
+            var speler = await _context.Spellen.FirstOrDefaultAsync(m => m.ID == id);
+            if (speler == null)
+            {
+                return NotFound();
+            }
+
+
+
+            return View(speler);
         }
 
         // GET: Spel/Create
@@ -55,50 +71,109 @@ namespace ReversiApp.Controllers
             return View(_speler);
         }
 
-        // GET: Spel/Edit/5
-        public ActionResult Edit(int id)
+        [Authorize(Roles = "Administrator")]
+        // GET: Spelers/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+
+
+            var speler = await _context.Spellen.FindAsync(id);
+            if (speler == null)
+            {
+                return NotFound();
+            }
+            return View(speler);
         }
 
-        // POST: Spel/Edit/5
+
+
+        // POST: Spelers/Edit/5
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Roles = "Administrator")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Naam,Wachtwoord,Token,Kleur")] Spel speler)
         {
-            try
+            if (id != speler.ID)
             {
-                // TODO: Add update logic here
+                return NotFound();
+            }
 
+
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(speler);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!SpelerExists(speler.ID))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            return View(speler);
         }
 
-        // GET: Spel/Delete/5
-        public ActionResult Delete(int id)
+
+
+        [Authorize(Roles = "Administrator")]
+        // GET: Spelers/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-            return View();
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+
+
+            var speler = await _context.Spellen
+                .FirstOrDefaultAsync(m => m.ID == id);
+            if (speler == null)
+            {
+                return NotFound();
+            }
+
+
+
+            return View(speler);
         }
 
-        // POST: Spel/Delete/5
-        [HttpPost]
+
+
+        // POST: Spelers/Delete/5
+        [Authorize(Roles = "Administrator")]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            try
-            {
-                // TODO: Add delete logic here
+            var speler = await _context.Spellen.FindAsync(id);
+            _context.Spellen.Remove(speler);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
 
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+
+
+        private bool SpelerExists(int id)
+        {
+            return _context.Spellen.Any(e => e.ID == id);
         }
     }
 }
